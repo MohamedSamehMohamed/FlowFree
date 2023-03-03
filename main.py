@@ -1,78 +1,14 @@
-from pyautogui import *
-import pyautogui
+from  PyautoguiCodes import moveTo, mouseDown, mouseUp, init, thisPicExist, clickThePic, objectPosition, ScreenShot, clickMouse
+from OsOprations import getFile, AddToFile, RunSolverScript
 import time
-import keyboard
-import random
-import win32api, win32con
-import math
-import pydirectinput
-import os 
 
-def get_Path(file_name):
-    Path = os.path.dirname(os.path.abspath(__file__))
-    my_file = os.path.join(Path, file_name)
-    return my_file
-
-def moveMouse(x, y):
-    pyautogui.moveTo(x, y)
-
-def holdKey(key):
-    down(key)
-    up(key)
-
-def clickMouse(x, y, btn = 'left'):
-    pyautogui.click(x = x, y =  y, button=btn)
-
-def down(key):
-    pyautogui.keyDown(key)
-def up(key):
-    pyautogui.keyUp(key)
-
-def click_fast():
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,0,0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,0,0)
-
-def objectPosition(name, con = .9):
-    obj = pyautogui.locateOnScreen(get_Path(name), confidence = con)
-    if obj != None:
-        dic = obj
-        x = dic[0]
-        y = dic[1]
-        return [x, y]
-    return [-1, -1]    
-
-def clickThePic(name, btn = 'left', con = .9):
-    obj = pyautogui.locateOnScreen(get_Path(name), confidence = con)
-    if obj != None:
-        dic = obj
-        x = dic[0]
-        y = dic[1]
-        clickMouse(x, y, btn)
-
-def thisPicExist(name, con = .9, grayscaleval=False):
-    obj = pyautogui.locateOnScreen(get_Path(name), confidence = con, grayscale=grayscaleval)
-    if obj != None:
-        return 1
-    return 0
 def read_solution():
-    order_list = []
-    file = open(get_Path('out.txt'))
-    for line in file:
-        list = []
-        for p in line[:-1].split(' '):
-            list.append(int(p))
-        order_list.append(list)
-    file.close()
-    return order_list
+    return getFile('out.txt')
 
-def appendToFile(lines):
-    file = open(get_Path('input.txt'), 'w')
-    for i in lines:    
-        file.write(str(i) + ' ')
-    file.close()
-            
-def solve(mat, sz):
-    #os.system('g++ main.cpp')
+def AddGameStatus(Statuslist):
+    AddToFile('input.txt', Statuslist)
+
+def BuildGameStatusList(mat, sz):
     list = []
     list.append(sz)
     list.append(sz)
@@ -83,41 +19,45 @@ def solve(mat, sz):
             list.append(mat[i][j][2][0])
             list.append(mat[i][j][2][1])
             list.append(mat[i][j][2][2])
-    appendToFile(list)
+    return list
 
-    proc = subprocess.Popen(get_Path('a.exe'))
-    proc.wait()
-    order_list = read_solution()
-    print(order_list)
+
+def solve(mat, sz):
+    Statuslist = BuildGameStatusList(mat, sz)
+    AddGameStatus(Statuslist)
+    RunSolverScript()
+    solution = read_solution()
+    simulateSolution(mat, solution)
+         
+def simulateSolution(mat, solution):
     first_time = 1 
-    for i in order_list:
+    for i in solution:
         time.sleep(.1)
         if first_time:
-            pyautogui.moveTo(mat[i[0]][i[1]][0], mat[i[0]][i[1]][1]) 
-            pyautogui.mouseDown()
+            moveTo(mat[i[0]][i[1]][0], mat[i[0]][i[1]][1]) 
+            mouseDown()
             first_time = 0
         if i[0] != -1:
-            pyautogui.moveTo(mat[i[0]][i[1]][0], mat[i[0]][i[1]][1]) 
+            moveTo(mat[i[0]][i[1]][0], mat[i[0]][i[1]][1]) 
         else:
-            pyautogui.mouseUp()
+            mouseUp()
             first_time = 1
-    pyautogui.mouseUp()        
-    
-def see_it(sz):
+    mouseUp()   
+def GetGameStatusMatrix(sz):
     img_name_gold = 'name.png'
     [x, y] = objectPosition(name='upper.PNG')
     [x1, y1] = objectPosition(name='upper_right.PNG')
     H = x1 - x + 1
     W = x1 - x + 1
     y += 120
-    im = pyautogui.screenshot(img_name_gold, region=(x,y, W, H))
+    im = ScreenShot(img_name_gold, (x, y, W, H))
     width = 1 
     hight = 1
     hight_step = H // sz
     width_step = W // sz
     mat = []
-    vis = []
-    center_value = 25 
+    center_value_x = 30
+    center_value_y = 40
     tot = sz * sz 
     while width < W:
         hight = 4 
@@ -126,33 +66,36 @@ def see_it(sz):
         while hight < H:
             if tot == 0 or row_tot == 0:
                 break 
-            #clickMouse(x + hight + center_value, y + width + center_value)
+            #clickMouse(x + hight + center_value_x, y + width + center_value_y)
+            #time.sleep(1)
             tot-=1
             row_tot-=1
-            #time.sleep(.5)
-            X = x + hight + center_value
-            Y = y + width + center_value
+            X = x + hight + center_value_x
+            Y = y + width + center_value_y
             #print(X - x, Y - y)
-            list.append((X, Y, im.getpixel((X- x, Y - y))))
-           # print(pyautogui.pixel(X, Y))
+            color = im.getpixel((X-x, Y - y))
+            if color[0] + color[1] + color[2] < 120:
+                color = (0, 0, 0)
+            list.append((X, Y, color))
+            #print(pyautogui.pixel(X, Y))
             hight += hight_step
         width += width_step
         mat.append(list)
-    solve(mat, sz)
-    
-import subprocess
+    return mat
     
 def main():
-    pyautogui.FAILSAFE = False
-    pyautogui.PAUSE = 0.01
-    cnt = 0
-    while cnt < 5:
-        cnt += 1 
-        see_it(6)
+    init()
+    numberOfSolveGames = 10
+    GameMatrixSize = 6
+    while numberOfSolveGames > 0:
+        numberOfSolveGames -= 1 
+        gameMatrix = GetGameStatusMatrix(GameMatrixSize)
+        solve(gameMatrix, GameMatrixSize)
         while not thisPicExist('next.png'):
             continue
         clickThePic('next.png')
         time.sleep(2)    
+        
 
 if __name__ == "__main__":
     main()

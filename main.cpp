@@ -88,7 +88,9 @@ int main()
 	solution.push_back({pairs[0][0], pairs[0][1], -1}); 
 	if (!solve(0, pairs[0][0], pairs[0][1], pairs[0][2], pairs[0][3]))
 		cout <<"FAILD\n";
-
-	for(auto i: solution)
-		cout << i[0] <<" " << i[1] <<"\n"; 
+	else 
+		{
+			for(auto i: solution)
+				cout << i[0] <<" " << i[1] <<"\n"; 
+		}
 }
