@@ -17,19 +17,58 @@ struct Grid{
 };
 const int N = 10;
 int n, m;
-Grid grid[10][10];
+Grid grid[N][N];
 vector<array<int, 4>> pairs;
 vector<array<int, 3>> solution; 
 bool vis[N][N]; 
 int dx[] = {1, -1, 0, 0};
 int dy[] = {0, 0, 1, -1};
+bool temp_vis[N][N];
+void init_temp_vis(){
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			temp_vis[i][j] = vis[i][j];
+}
+bool canReach(int srcX, int srcY, int targetX, int targetY){
+	if (srcX == targetX && srcY == targetY) 
+		return 1;
+	temp_vis[srcX][srcY] = 1;
+	for(int k = 0; k < 4; k++)
+	{
+		int nx = srcX + dx[k];
+		int ny = srcY + dy[k];
+		if (min(nx, ny) < 0 || nx >= n || ny >= m || temp_vis[nx][ny])continue; 
+		// if this cell not empty it must be the target cell otherwise we can't visit it 
+		if (!grid[nx][ny].empty())
+		{
+			if (nx != targetX || ny != targetY)
+				continue; 
+		}
+		temp_vis[nx][ny] = 1; 
+		if (canReach(nx, ny, targetX, targetY))
+			return 1;  
+	}
+	temp_vis[srcX][srcY] = 0;
+	return 0;
+}
+bool canWeContinue(int index){
+	while (index < pairs.size()){
+		init_temp_vis();
+		if (!canReach(pairs[index][0], pairs[index][1], pairs[index][2], pairs[index][3]))
+			return 0;
+		index++;
+	}
+	return 1;
+}
 bool solve(int index = 0, int cx = 0, int cy = 0, int tx = -1, int ty = -1)
 {
-
+	// if src == target 
 	if (cx == tx && cy == ty)
 	{
+		// if we end the pairs list , we are finished 
 		if (index == pairs.size() - 1)
 			return 1;
+
 		solution.push_back({-1, -1, -1});
 		solution.push_back({pairs[index+1][0], pairs[index+1][1], -1}); 
 		if (solve(index+1, pairs[index+1][0], pairs[index+1][1], pairs[index+1][2], pairs[index+1][3]))
@@ -38,11 +77,14 @@ bool solve(int index = 0, int cx = 0, int cy = 0, int tx = -1, int ty = -1)
 		solution.pop_back(); 
 		return 0; 
 	}
+	if (!canWeContinue(index+1)) 
+		return 0;
 	for(int k = 0; k < 4; k++)
 	{
 		int nx = cx + dx[k];
 		int ny = cy + dy[k];
 		if (min(nx, ny) < 0 || nx >= n || ny >= m || vis[nx][ny])continue; 
+		// if this cell not empty it must be the target cell otherwise we can't visit it 
 		if (!grid[nx][ny].empty())
 		{
 			if (nx != tx || ny != ty)
@@ -56,7 +98,6 @@ bool solve(int index = 0, int cx = 0, int cy = 0, int tx = -1, int ty = -1)
 		solution.pop_back(); 
 	}
 	return 0;
-
 }
 int main()
 {

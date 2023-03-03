@@ -49,15 +49,15 @@ def GetGameStatusMatrix(sz):
     [x1, y1] = objectPosition(name='upper_right.PNG')
     H = x1 - x + 1
     W = x1 - x + 1
-    y += 120
+    y += 135
     im = ScreenShot(img_name_gold, (x, y, W, H))
     width = 1 
     hight = 1
     hight_step = H // sz
     width_step = W // sz
     mat = []
-    center_value_x = 30
-    center_value_y = 40
+    center_value_x = hight_step // 2
+    center_value_y = width_step // 2 
     tot = sz * sz 
     while width < W:
         hight = 4 
@@ -66,8 +66,8 @@ def GetGameStatusMatrix(sz):
         while hight < H:
             if tot == 0 or row_tot == 0:
                 break 
-            #clickMouse(x + hight + center_value_x, y + width + center_value_y)
-            #time.sleep(1)
+            clickMouse(x + hight + center_value_x, y + width + center_value_y)
+            time.sleep(.5)
             tot-=1
             row_tot-=1
             X = x + hight + center_value_x
@@ -85,8 +85,8 @@ def GetGameStatusMatrix(sz):
     
 def main():
     init()
-    numberOfSolveGames = 5
-    GameMatrixSize = 6
+    numberOfSolveGames = 1
+    GameMatrixSize = 7
     while numberOfSolveGames > 0:
         numberOfSolveGames -= 1 
         gameMatrix = GetGameStatusMatrix(GameMatrixSize)
