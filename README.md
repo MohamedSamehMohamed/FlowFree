@@ -4,9 +4,13 @@ This is a script for solving Flow Free Android Game
 ### Python and C++
 
 #### Algorithm
-After reading the game status, we create a list of pairs [x1, y1, x2, y2] and we want to find paths that each pair [x1, y1] reach [x2, y2] 
+After reading the game status, 
 
-without conflict between any two paths or pass throw a colored cell 
+we create a list of pairs [x1, y1, x2, y2] cell[x1, y1] and cell[x2, y2] have same color
+
+and we want to find a path between cell [x1, y1] and cell [x2, y2] 
+
+without conflict between any other path or pass throw a colored cell except cells ([x1, y1], [x2, y2]) 
 
 We just run a standard backtrack algorithm and try all possible paths 
 
