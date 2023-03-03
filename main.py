@@ -86,7 +86,7 @@ def GetGameStatusMatrix(sz):
 def main():
     init()
     numberOfSolveGames = 1
-    GameMatrixSize = 7
+    GameMatrixSize = 9
     while numberOfSolveGames > 0:
         numberOfSolveGames -= 1 
         gameMatrix = GetGameStatusMatrix(GameMatrixSize)

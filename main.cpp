@@ -23,7 +23,7 @@ vector<array<int, 3>> solution;
 bool vis[N][N]; 
 int dx[] = {1, -1, 0, 0};
 int dy[] = {0, 0, 1, -1};
-bool temp_vis[N][N];
+int temp_vis[N][N];
 void init_temp_vis(){
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
@@ -51,10 +51,50 @@ bool canReach(int srcX, int srcY, int targetX, int targetY){
 	temp_vis[srcX][srcY] = 0;
 	return 0;
 }
+void dfs(int r, int c, int color){
+	temp_vis[r][c] = color;
+	for(int k = 0; k < 4; k++)
+	{
+		int nx = r + dx[k];
+		int ny = c + dy[k];
+		if (min(nx, ny) < 0 || nx >= n || ny >= m || temp_vis[nx][ny] || !grid[nx][ny].empty())continue; 
+		dfs(nx, ny, color);
+	}
+}
 bool canWeContinue(int index){
+	init_temp_vis();
+	int markColor = 2;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++){
+			if (temp_vis[i][j] || !grid[i][j].empty()) continue;
+			dfs(i, j, markColor);
+			markColor++;
+		}
+	}
 	while (index < pairs.size()){
-		init_temp_vis();
-		if (!canReach(pairs[index][0], pairs[index][1], pairs[index][2], pairs[index][3]))
+		int msk1 = 0, msk2 = 0;
+		for(int k = 0; k < 4; k++)
+		{
+			for (int j = 0; j <= 2; j+=2){
+				int nx = pairs[index][0 + j] + dx[k];
+				int ny = pairs[index][1 + j] + dy[k];
+				if (min(nx, ny) < 0 || nx >= n || ny >= m || temp_vis[nx][ny] <= 1 || !grid[nx][ny].empty())
+					continue; 
+				if (j) 
+					msk2 |= (1<<temp_vis[nx][ny]);
+				else 
+					msk1 |= (1<<temp_vis[nx][ny]);
+			}
+		}
+		bool match = 0;
+		for (int i = 2; i <= markColor; i++){
+			if ((msk1 & (1<<i)) && (msk2 & (1<<i))){
+				match = 1;
+				break;
+			}
+		}
+		if (!match) 
 			return 0;
 		index++;
 	}
