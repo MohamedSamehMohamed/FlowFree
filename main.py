@@ -66,8 +66,8 @@ def GetGameStatusMatrix(sz):
         while hight < H:
             if tot == 0 or row_tot == 0:
                 break 
-            clickMouse(x + hight + center_value_x, y + width + center_value_y)
-            time.sleep(.5)
+            # clickMouse(x + hight + center_value_x, y + width + center_value_y)
+            # time.sleep(.5)
             tot-=1
             row_tot-=1
             X = x + hight + center_value_x
